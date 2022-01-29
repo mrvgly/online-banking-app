@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using AutoMapper;
 using GetirCase.Api.DTO;
@@ -28,31 +24,8 @@ namespace GetirCase.Api.Controllers
 
         }
 
-        [HttpGet]
-        [Produces("application/json")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetAllCustomers()
-        {
-            var customers = await _customerService.GetAllCustomers();
-            var customerDTOs = _mapper.Map<IEnumerable<Customer>, IEnumerable<CustomerDTO>>(customers);
-
-            return Ok(customerDTOs);
-        }
-
-        [HttpGet("{id}")]
-        [Produces("application/json")]
-        [Authorize]
-        public async Task<ActionResult<CustomerDTO>> GetACustomerById(int id)
-        {
-            var customer = await _customerService.GetCustomerById(id);
-            var customerDTO = _mapper.Map<Customer, CustomerDTO>(customer);
-
-            return Ok(customerDTO);
-        }
-
         [HttpPost]
         [Produces("application/json")]
-        [Authorize]
         public async Task<ActionResult<CustomerDTO>> CreateCustomer([FromBody][Required] SaveCustomerDTO saveCustomerDTO)
         {
             var validator = new SaveCustomerDTOValidator();
@@ -72,50 +45,33 @@ namespace GetirCase.Api.Controllers
             return Ok(customerDTO);
         }
 
-        [HttpPut("{id}")]
+        [HttpGet("Detail/{id}")]
         [Produces("application/json")]
         [Authorize]
-        public async Task<ActionResult<CustomerDTO>> UpdateCustomer(int id, [FromBody][Required] SaveCustomerDTO saveCustomerDTO)
+        public async Task<ActionResult<CustomerWithAccountsDTO>> GetCustomerWithAccountsById(int id)
         {
-            var validator = new SaveCustomerDTOValidator();
-            var validationResult = await validator.ValidateAsync(saveCustomerDTO);
+            var customer = await _customerService.GetCustomerWithAccountsById(id);
+            var customerWithAccountsDTO = _mapper.Map<Customer, CustomerWithAccountsDTO>(customer);
 
-            if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
-
-            var customerToBeUpdated = await _customerService.GetCustomerById(id);
-
-            if (customerToBeUpdated == null)
-                return NotFound();
-
-            var customer = _mapper.Map<SaveCustomerDTO, Customer>(saveCustomerDTO);
-
-            await _customerService.UpdateCustomer(customerToBeUpdated, customer);
-
-            var updatedCustomer = await _customerService.GetCustomerById(id);
-
-            var updatedCustomerDTO = _mapper.Map<Customer, CustomerDTO>(updatedCustomer);
-
-            return Ok(updatedCustomerDTO);
+            return Ok(customerWithAccountsDTO);
         }
 
         [HttpPost("Login")]
         [Produces("application/json")]
-        public async Task<Token> Login([FromForm] LoginDTO loginDTO)
+        public async Task<ActionResult<Token>> Login([FromForm] LoginDTO loginDTO)
         {
             var login = _mapper.Map<LoginDTO, Login>(loginDTO);
 
-            var customer = await _customerService.GetCustomerByLoginRequestAsync(login);
+            var customer = await _customerService.GetCustomerByLoginRequest(login);
 
             if (customer != null)
             {
-
                 var token = _customerService.CreateToken(login);
 
-                return token;
+                return Ok(token);
             }
 
-            return null;
+            return BadRequest();
         }
     }
 }
