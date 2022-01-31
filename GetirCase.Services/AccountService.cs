@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GetirCase.Core;
 using GetirCase.Core.Models;
@@ -19,13 +20,18 @@ namespace GetirCase.Services
         {
             var customer = await _unitOfWork.Customers.GetByIdAsync(account.CustomerId);
 
-            account.Customer = customer;
+            if (customer != null)
+            {
+                account.Customer = customer;
 
-            await _unitOfWork.Accounts.AddAsync(account);
+                await _unitOfWork.Accounts.AddAsync(account);
 
-            await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitAsync();
 
-            return account;
+                return account;
+            }
+            else
+                throw new Exception("The Customer who owner of account is not found.");
         }
 
         public async Task<List<Account>> GetAccountsByCustomerId(int customerId)

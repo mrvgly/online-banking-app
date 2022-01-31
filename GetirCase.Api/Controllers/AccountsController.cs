@@ -37,7 +37,7 @@ namespace GetirCase.Api.Controllers
         [HttpPost]
         [Produces("application/json")]
         [Authorize]
-        public async Task<ActionResult<AccountDTO>> CreateAccount([Required][FromBody] SaveAccountDTO saveAccountDTO)
+        public async Task<ActionResult<SaveAccountDTO>> CreateAccount([Required][FromBody] SaveAccountDTO saveAccountDTO)
         {
             var validator = new SaveAccountDTOValidator();
             var validationResult = await validator.ValidateAsync(saveAccountDTO);
@@ -47,13 +47,9 @@ namespace GetirCase.Api.Controllers
 
             var accountToCreate = _mapper.Map<SaveAccountDTO, Account>(saveAccountDTO);
 
-            var newAccount = await _accountService.CreateAccount(accountToCreate);
+            await _accountService.CreateAccount(accountToCreate);
 
-            var account = await _accountService.GetAccountDetailById(newAccount.Id);
-
-            var accountDTO = _mapper.Map<Account, AccountDTO>(account);
-
-            return Ok(accountDTO);
+            return Ok(saveAccountDTO);
         }
     }
 }

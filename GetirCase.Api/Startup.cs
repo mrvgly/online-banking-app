@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using GetirCase.Api.Common;
 using GetirCase.Core;
+using GetirCase.Core.Middlewares;
 using GetirCase.Core.Services;
 using GetirCase.Data;
 using GetirCase.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -22,12 +22,12 @@ namespace GetirCase.Api
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -100,28 +100,17 @@ namespace GetirCase.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
             app.UseHttpsRedirection();
-
-            app.UseExceptionHandler(a => a.Run(async context =>
-            {
-                var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-                var exception = exceptionHandlerPathFeature.Error;
-
-                await context.Response.WriteAsJsonAsync(new { error = exception.Message });
-            }));
 
             app.UseRouting();
 
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseResponseWrapper();
 
             app.UseEndpoints(endpoints =>
             {
@@ -132,9 +121,13 @@ namespace GetirCase.Api
 
             app.UseSwaggerUI(c =>
             {
-                c.RoutePrefix = "";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Getir Case V1");
             });
+
+            SeedData.Seed(app.ApplicationServices
+               .GetRequiredService<IServiceScopeFactory>()
+               .CreateScope()
+               .ServiceProvider);
         }
     }
 }

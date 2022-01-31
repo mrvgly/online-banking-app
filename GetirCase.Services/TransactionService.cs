@@ -43,6 +43,9 @@ namespace GetirCase.Services
         {
             var account = await _unitOfWork.Accounts.GetAccountWithCustomerInfoByIdAsync(transaction.AccountId);
 
+            if (account == null)
+                throw new Exception("The account is not found.");
+
             await _accountService.UpdateAccountBalance(account, transaction.Amount);
 
             transaction.Account = account;
@@ -61,6 +64,9 @@ namespace GetirCase.Services
         public async Task<Transaction> MakeWithdrawal(Transaction transaction)
         {
             var account = await _unitOfWork.Accounts.GetAccountWithCustomerInfoByIdAsync(transaction.AccountId);
+
+            if (account == null)
+                throw new Exception("The account is not found.");
 
             if(account.Balance < transaction.Amount)
                 throw new Exception("Not sufficient balance for this withdrawal");

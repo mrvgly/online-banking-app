@@ -19,6 +19,11 @@
     <None Remove="Validators\" />
     <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <None Remove="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+    <None Remove="Serilog.AspNetCore" />
+    <None Remove="Serilog.Extensions.Logging" />
+    <None Remove="Serilog.Sinks.Console" />
+    <None Remove="Serilog.Sinks.RollingFile" />
+    <None Remove="Common\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.13">
@@ -31,11 +36,15 @@
     <PackageReference Include="FluentValidation" Version="10.3.6" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.13" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DTO\" />
     <Folder Include="Mapping\" />
     <Folder Include="Validators\" />
+    <Folder Include="Common\" />
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>

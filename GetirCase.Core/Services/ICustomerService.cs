@@ -10,6 +10,5 @@ namespace GetirCase.Core.Services
         Token CreateToken(Login login);
         Task<Customer> GetCustomerByLoginRequest(Login login);
         Task<Customer> GetCustomerById(int id);
-        Task<Customer> GetCustomerByCustomerName(string customerName);
     }
 }

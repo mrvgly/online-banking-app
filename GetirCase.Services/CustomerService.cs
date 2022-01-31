@@ -24,6 +24,11 @@ namespace GetirCase.Services
 
         public async Task<Customer> CreateCustomer(Customer customer)
         {
+            var customerExist = _unitOfWork.Customers.GetCustomerByEmailAsync(customer.Email);
+
+            if (customerExist != null)
+                throw new Exception("Customer already exists.");
+
             customer.Password = Helper.PasswordHasher(customer.Password);
 
             await _unitOfWork.Customers
@@ -36,33 +41,43 @@ namespace GetirCase.Services
 
         public Token CreateToken(Login login)
         {
-            var token = new Token
+            try
             {
-                Expiration = DateTime.Now.AddMinutes(15)
-            };
+                var token = new Token
+                {
+                    Expiration = DateTime.Now.AddMinutes(15)
+                };
 
-            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
+                SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
 
-            SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha256);
-           
-            JwtSecurityToken securityToken = new(
-                issuer: _configuration["Tokens:Issuer"],
-                audience: _configuration["Tokens:Audience"],
-                expires: token.Expiration,
-                notBefore: DateTime.Now,
-                signingCredentials: signingCredentials
-                );
+                SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha256);
 
-            JwtSecurityTokenHandler tokenHandler = new();
+                JwtSecurityToken securityToken = new(
+                    issuer: _configuration["Tokens:Issuer"],
+                    audience: _configuration["Tokens:Audience"],
+                    expires: token.Expiration,
+                    notBefore: DateTime.Now,
+                    signingCredentials: signingCredentials
+                    );
 
-            token.AccessToken = tokenHandler.WriteToken(securityToken);
+                JwtSecurityTokenHandler tokenHandler = new();
 
-            return token;
+                token.AccessToken = tokenHandler.WriteToken(securityToken);
+
+                return token;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occured while generating access token. " + ex.Message);
+            }
         }
 
         public async Task<Customer> GetCustomerWithAccountsById(int id)
         {
             var customer = await _unitOfWork.Customers.GetByIdAsync(id);
+
+            if (customer == null)
+                throw new Exception("Customer is not found.");
 
             var accounts = await _unitOfWork.Accounts.GetAllAccountsByCustomerIdAsync(customer.Id);
 
@@ -81,11 +96,6 @@ namespace GetirCase.Services
         public async Task<Customer> GetCustomerById(int id)
         {
             return await _unitOfWork.Customers.GetByIdAsync(id);
-        }
-
-        public async Task<Customer> GetCustomerByCustomerName(string customerName)
-        {
-            return await _unitOfWork.Customers.GetCustomerByNameAsync(customerName);
         }
     }
 }

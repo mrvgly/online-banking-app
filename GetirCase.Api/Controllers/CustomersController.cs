@@ -26,7 +26,7 @@ namespace GetirCase.Api.Controllers
 
         [HttpPost]
         [Produces("application/json")]
-        public async Task<ActionResult<CustomerDTO>> CreateCustomer([FromBody][Required] SaveCustomerDTO saveCustomerDTO)
+        public async Task<ActionResult<SaveCustomerDTO>> CreateCustomer([FromBody][Required] SaveCustomerDTO saveCustomerDTO)
         {
             var validator = new SaveCustomerDTOValidator();
             var validationResult = await validator.ValidateAsync(saveCustomerDTO);
@@ -36,13 +36,9 @@ namespace GetirCase.Api.Controllers
 
             var customerToCreate = _mapper.Map<SaveCustomerDTO, Customer>(saveCustomerDTO);
 
-            var newCustomer = await _customerService.CreateCustomer(customerToCreate);
+            await _customerService.CreateCustomer(customerToCreate);
 
-            var customer = await _customerService.GetCustomerById(newCustomer.Id);
-
-            var customerDTO = _mapper.Map<Customer, CustomerDTO>(customer);
-
-            return Ok(customerDTO);
+            return Ok(saveCustomerDTO);
         }
 
         [HttpGet("Detail/{id}")]
@@ -57,7 +53,7 @@ namespace GetirCase.Api.Controllers
         }
 
         [HttpPost("Login")]
-        [Produces("application/json")]
+        [ProducesResponseType(typeof(CommonApiResponse), 400)]
         public async Task<ActionResult<Token>> Login([FromForm] LoginDTO loginDTO)
         {
             var login = _mapper.Map<LoginDTO, Login>(loginDTO);

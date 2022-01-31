@@ -1,10 +1,10 @@
-﻿using System;
-namespace GetirCase.Core.Models
+﻿namespace GetirCase.Core.Models
 {
-    public class Error
+    public class ApiError
     {
-        public Error()
-        {
-        }
+        public int Code { get; set; }
+
+        public string Message { get; set; }
+
     }
 }

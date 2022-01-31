@@ -32,8 +32,6 @@ namespace GetirCase.Api.Controllers
 
             var transactionsDTOs = _mapper.Map<List<Transaction>, List<TransactionDTO>>(transactions);
 
-            transactionsDTOs.ForEach(x => x.CustomerId = transactions[0].Account.CustomerId);
-
             return Ok(transactionsDTOs);
         }
 

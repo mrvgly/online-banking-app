@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace GetirCase.Core.Utils
 {
@@ -36,6 +37,23 @@ namespace GetirCase.Core.Utils
             {
                 throw new FormatException(ex.Message);
             }
+        }
+
+        public static bool IsValidJson(this string s)
+        {
+            bool response;
+
+            try
+            {
+                JToken.Parse(s);
+                response = true;
+            }
+            catch (Exception)
+            {
+                response = false;
+            }
+
+            return response;
         }
     }
 }
