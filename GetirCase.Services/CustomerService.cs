@@ -24,7 +24,7 @@ namespace GetirCase.Services
 
         public async Task<Customer> CreateCustomer(Customer customer)
         {
-            var customerExist = _unitOfWork.Customers.GetCustomerByEmailAsync(customer.Email);
+            var customerExist = await _unitOfWork.Customers.GetCustomerByEmailAsync(customer.Email);
 
             if (customerExist != null)
                 throw new Exception("Customer already exists.");

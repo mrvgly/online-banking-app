@@ -110,7 +110,7 @@ namespace GetirCase.Api
 
             app.UseAuthorization();
 
-            app.UseResponseWrapper();
+            //app.UseResponseWrapper(); // removed this mw due to not working.
 
             app.UseEndpoints(endpoints =>
             {

@@ -21,9 +21,7 @@ namespace GetirCase.Services
 
         public async Task<List<Transaction>> GetAllTransactionsByAccountId(int accountId)
         {
-            var transactions = await _unitOfWork.Transaction.GetAllTransactionsByAccountIdAsync(accountId);
-
-            return transactions;
+            return await _unitOfWork.Transaction.GetAllTransactionsByAccountIdAsync(accountId);
         }
 
         public async Task<List<Transaction>> GetAllTransactionsByCustomerIdWithPeriods(int customerId, string startDate, string endDate)
@@ -68,7 +66,7 @@ namespace GetirCase.Services
             if (account == null)
                 throw new Exception("The account is not found.");
 
-            if(account.Balance < transaction.Amount)
+            if (account.Balance < transaction.Amount)
                 throw new Exception("Not sufficient balance for this withdrawal");
 
             await _accountService.UpdateAccountBalance(account, -transaction.Amount);
